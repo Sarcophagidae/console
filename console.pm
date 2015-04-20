@@ -115,7 +115,7 @@ sub call{
 	if ($sub_link == 0) {
 		return 0;
 	}
-	$sub_link->(@params);
+	$sub_link->($self, @params);
 	return 1;
 }
 
@@ -162,12 +162,55 @@ sub get_bool_var {
 sub use_default_command{
 	my $self        = shift;
 	
-	my $exit_sub_func = sub { $self->unset_bool_var('EXIT_FLAG');};
-	my $set_sub_func = sub {};
-	my $unset_sub_func = sub {};
-	my $version_sub_func = sub {};
+	my $exit_sub 	= sub { $self->unset_bool_var('EXIT_FLAG');};
+
+	my $set_sub 	= sub {
+			my $self 	  = shift;
+			my $bool_name = shift;
+			$self->set_bool_var($bool_name);
+		};
+
+	my $unset_sub 	= sub {
+			my $self 	  = shift;
+			my $bool_name = shift;
+			$self->unset_bool_var($bool_name);
+		};
+
+	my $show_var_sub= sub{
+			my $self 	  = shift;
+			my $bool_name = shift;
+
+			my $val = $self->get_bool_var($bool_name);
+			if (defined $val) {
+				if ($val == 1){
+					$self->echo("True");
+				} else {
+					$self->echo("False");
+				}
+			} else { $self->echo("Variable is not defined");}
+		}; 
+	my $version_sub = sub {
+			my $self 	  = shift;
+			$self->echo($self->version);
+		};
 	
-	$self->set_sub($exit_sub_func,'exit');
+	$self->set_sub($exit_sub,'exit');
+	$self->set_sub($show_var_sub,'show');
+	$self->set_sub($set_sub,'set');
+	$self->set_sub($unset_sub,'unset');
+}
+
+sub echo{
+	# This function provide printing for console module
+	# Its necessary for loging all printing data
+	# Need to realise system flag for changing logining style
+	# for example binary set: (infile)(invar)(inscreen)
+	# default value 0
+	# max value 7
+	#
+	my $self 			= shift;
+	my $what_to_print	= shift;
+	print $what_to_print."\n";
 }
 
 sub main{
