@@ -49,7 +49,7 @@ diag("Subs calling");
 my $output_buffer;
 open VAR, '>', \$output_buffer;
 my $my_anon_func = sub { print VAR "Test sub printing\n"; };
-my $my_anon_func_with_params = sub { print VAR $_[0].$_[1].$_[2]; };
+my $my_anon_func_with_params = sub { print VAR $_[1].$_[2].$_[3]; };
 
 
 is ($cmd->set_sub($my_anon_func),	0,	'set_sub. Dont save incorrect input - wout name');
@@ -67,7 +67,7 @@ is ($output_buffer,					"Test sub printing\n", 'call. Check outputed data');
 
 $cmd->set_sub($my_anon_func_with_params, 'print_param');
 $output_buffer = '';
-$cmd->call('print_param',(1,2,3));
+$cmd->call('print_param',1,2,3);
 like ($output_buffer,					qr/123/, 'call. Call with params');
 
 diag("Working with var");
