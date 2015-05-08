@@ -18,7 +18,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 27;  # last test to print
+use Test::More tests => 31;  # last test to print
 
 
 use lib '../';
@@ -95,6 +95,28 @@ is (($cmd->parse_input())[0],			'zeleboba','parse_input. Checking trim function'
 $cmd->set_input("  \t  zele\t   bo \t \t  ba \t   \t ");
 is (join (' ',$cmd->parse_input()),			'zele bo ba','parse_input. Checking param spliting');
 
+diag("Echo testing");
+
+close STDOUT;
+open STDOUT, '>', \$output_buffer; 
+$output_buffer = '';
+$cmd->set_output_buffer('');
+
+$cmd->set_bool_var('#OUTPUT_INVAR');
+$cmd->set_bool_var('#OUTPUT_INSCREEN');
+$cmd->echo("Test_string");
+is ($output_buffer, "Test_string\n", 'Echo. Testing to output');
+is ($cmd->get_output_buffer, "Test_string\n", 'Echo. Check outup in var');
+
+$output_buffer = '';
+$cmd->set_output_buffer('');
+$cmd->unset_bool_var('#OUTPUT_INVAR');
+$cmd->unset_bool_var('#OUTPUT_INSCREEN');
+$cmd->echo("Test_string2");
+is ($output_buffer, '', 'Echo. Testing to output if STDOUT is off');
+is ($cmd->get_output_buffer, '', 'Echo. Check outup in var if VAROUT is off');
+
+diag("Default subs testing");
 
 
 

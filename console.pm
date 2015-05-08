@@ -28,8 +28,19 @@ sub new{
 	$self->{'input'} = '';
 	$self->{'subs'} = {};
 	$self->{'bool_vars'} = {};
+	$self->{'output_buffer'}='';
 
 	return $self;
+}
+
+sub get_output_buffer{
+	my $self = shift;
+	$self->{'output_buffer'};
+}
+
+sub set_output_buffer{
+	my $self = shift;
+	$self->{'output_buffer'} = shift;
 }
 
 sub set_input{
@@ -119,7 +130,13 @@ sub call{
 	return 1;
 }
 
+
 sub set_bool_var {
+	sub check_var_name{
+		if ($_[0] =~ /:/){
+			
+		}
+	}
 	my $self 		= shift;
 	my $bool_name	= shift; 	
 	
@@ -161,8 +178,10 @@ sub get_bool_var {
 
 sub use_default_command{
 	my $self        = shift;
+
+	$self->init_echo();
 	
-	my $exit_sub 	= sub { $self->unset_bool_var('EXIT_FLAG');};
+	my $exit_sub 	= sub { $self->unset_bool_var('#EXIT_FLAG');};
 
 	my $set_sub 	= sub {
 			my $self 	  = shift;
@@ -200,17 +219,26 @@ sub use_default_command{
 	$self->set_sub($unset_sub,'unset');
 }
 
+sub init_echo{
+	my $self 			= shift;
+	$self->set_bool_var('#OUTPUT_INSCREEN');
+	$self->set_bool_var('#OUTPUT_INVAR');
+	$self->unset_bool_var('#OUTPUT_INFILE');
+}
+
 sub echo{
 	# This function provide printing for console module
 	# Its necessary for loging all printing data
-	# Need to realise system flag for changing logining style
-	# for example binary set: (infile)(invar)(inscreen)
-	# default value 0
-	# max value 7
-	#
+
 	my $self 			= shift;
 	my $what_to_print	= shift;
-	print $what_to_print."\n";
+
+	if ($self->get_bool_var('#OUTPUT_INSCREEN')){
+		print $what_to_print."\n";
+	}
+	if ($self->get_bool_var('#OUTPUT_INVAR')){
+		$self->set_output_buffer($self->get_output_buffer().$what_to_print."\n");
+	}
 }
 
 sub main{
@@ -218,8 +246,8 @@ sub main{
 	# may be derived 
 	my $self        = shift;
 
-	$self->set_bool_var('EXIT_FLAG');
-	while ($self->get_bool_var('EXIT_FLAG')){
+	$self->set_bool_var('#EXIT_FLAG');
+	while ($self->get_bool_var('#EXIT_FLAG')){
 		$self->input();	
 		$self->call($self->parse_input);
 	}
